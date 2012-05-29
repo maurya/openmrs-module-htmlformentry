@@ -9,7 +9,6 @@ import org.openmrs.Concept;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
-
 /**
  * Handles the {@code <obs>} tag
  */
