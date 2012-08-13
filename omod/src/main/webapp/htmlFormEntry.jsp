@@ -35,7 +35,7 @@
 	// if any function returns false, no further functions are called and the validation or submission is cancelled
 	var beforeValidation = new Array();     // a list of functions that will be executed before the validation of a form
 	var beforeSubmit = new Array(); 		// a list of functions that will be executed before the submission of a form
-
+	var flag=0;
 	// boolean to track whether or not jquery document ready function fired
 	var initInd = true;
 
@@ -128,6 +128,31 @@
 
 		// indicates this function has completed
 		initInd = false;
+		//managing the id of the newly generated id's of dynamicAutocomplete widgets
+		$j('div .dynamicAutocomplete').each(function(index) {
+			var string=((this.id).split("_div",1))+"_hid";
+			if(!$j('#'+string).attr('value'))
+			$j('#'+this.id).data("count",0);
+			else
+			$j('#'+this.id).data("count",parseInt($j('#'+string).attr('value')));
+			});
+		//add button for dynamic autocomplete
+		$j(':button.addConceptButton').click(function() {
+			  var string=(this.id).replace("_button","");
+		        var conceptValue=$j('#'+string+'_hid').attr('value')
+		        if($j('#'+string).css('color')=='green'){
+		        var	divId=string+"_div";
+	        	 var spanid=string+'span_'+ $j('#'+divId).data("count");
+	        	 var count= $j('#'+divId).data("count");
+	        	 $j('#'+divId).data("count",++count);
+	        	 $j('#'+string+'_hid').attr('value',$j('#'+divId).data("count"));
+	        	 var hidId=spanid+'_hid';
+	           var v='<span id="'+spanid+'"></br>'+$j('#'+string).val()+'<input id="'+hidId+'"  class="autoCompleteHidden" type="hidden" name="'+hidId+'" value="'+conceptValue+'">';
+	                var q='<input id="'+spanid+'_button" type="button" value="remove" onClick="$j(\'#'+spanid+'\').remove();refresh(this.id)"></span>';
+	                $j('#'+divId).append(v+q);
+	                $j('#'+string).val('');
+	        } 
+	        });
 
 	});
 
@@ -166,6 +191,73 @@
 		}
 	}
 
+//triggered when the add of dynamicRepeat is clicked 	
+function duplicateTemplate(v){			
+	 var count=parseInt($j(v).parent().children('.counter').val());
+		var q=$j(v).clone();
+		$j(v).children('.dynamicRepeat').remove();
+		$j(v).attr("class","dynamic-repeat-template");
+		$j(v).children().each(function () {	
+			if($j(this).attr('id')){
+				var tempid=$j(this).attr('id').split('-template',2);
+				$j(this).attr('id',tempid[0]+'-'+count+tempid[1]);
+			}
+				if($j(this).attr('name')){
+				var tempname=$j(this).attr('name').split('-template',2);
+				$j(this).attr('name',tempname[0]+'-'+count+tempname[1]);
+			}
+	});
+	$j(q).children().each(function () {	
+			if($j(this).attr('value') && $j(this).attr('type')!='button'){
+							$j(this).attr('value',"");
+					}
+			});
+	count++;
+	$j(v).parent().children('.counter').val(count+'');
+	$j(v).append("<input value='remove' type='button' class='dynamicRemove' onClick='removeFunction($j(this).parent())'>");
+	q.insertBefore(v);
+}
+//triggered when remove of dynamicRepeat is clicked
+	 function removeFunction(v){
+		     var k= $j(v).parent();
+		    var b=0;
+		     $j(v).remove();     
+		    $j(k).children('.dynamic-repeat-template').each(function(index){
+		    	if (index == 0)
+		    		return true; 
+		    $j(this).children(":input").each(function(ind){
+		    if($j(this).attr("id")){
+		    var sample=$j(this).attr("id").split("-",1);
+		    $j(this).attr("id",sample+"-"+index);
+		    }
+		     b=index;
+		    });
+		    });    $j(k).children('.counter').attr("value",b+2);
+}
+//used for dynamicAutocomplete widget
+function refresh (v) {
+	var flag=true;
+	var string=((v).split("span",1))+"_hid";
+	var divId=((v).split("span",1))+"_div";
+	var temp=((v).split("span",1))+"span_";
+	$j('#'+divId+' span').each(function(index) {
+		$j('#'+divId).data("count",index+1);
+     	 $j('#'+string).attr('value',$j('#'+divId).data("count"));
+		flag=false;
+	     var spanId=this.id;
+	     var newSpanId=spanId.split('_',1)+'_'+index;
+	     this.id=newSpanId;
+	     $j('#'+spanId+'_hid').attr('id',newSpanId+'_hid');
+	      $j('#'+spanId+'_button').removeAttr('onclick',null).unbind('click').attr('id',newSpanId+'_button').click(function() {
+	 $j('#'+newSpanId).remove();refresh(newSpanId+"_button");
+	 });
+	      $j('#'+newSpanId+'_hid').attr('name',newSpanId+'_hid');
+	     });
+	if(flag)
+	$j('#'+divId).data("count",0);
+	 $j('#'+string).attr('value',$j('#'+divId).data("count"));
+	}
+	
 	var tryingToSubmit = false;
 	
 	function submitHtmlForm() {

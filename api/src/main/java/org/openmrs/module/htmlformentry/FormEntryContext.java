@@ -61,6 +61,9 @@ public class FormEntryContext {
     private Stack<Map<ObsGroup, List<Obs>>> obsGroupStack = new Stack<Map<ObsGroup, List<Obs>>>();
     private ObsGroup activeObsGroup;
     
+    private boolean inDynamicRepeat = false;
+    private Integer repeatIteration;
+    
     private Patient existingPatient;
     private Encounter existingEncounter;
     private Map<Concept, List<Obs>> existingObs;
@@ -109,6 +112,9 @@ public class FormEntryContext {
             sequenceNextVal = sequenceNextVal + 1;            
         }
         String fieldName = "w" + thisVal;
+        if (inDynamicRepeat) {
+        	fieldName += "-template";
+        }
         fieldNames.put(widget, fieldName);
         if (log.isTraceEnabled())
         	log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
@@ -145,8 +151,13 @@ public class FormEntryContext {
         String fieldName = fieldNames.get(widget);
         if (fieldName == null)
             throw new IllegalArgumentException("Widget not registered");
-        else
-            return fieldName;
+        else{
+        	if (repeatIteration != null) {
+    		return fieldName.replace("template", repeatIteration.toString());
+    	} else {
+    		return fieldName;
+    	}
+        }
     }
     
     /**
@@ -388,6 +399,18 @@ public class FormEntryContext {
                 return ret;
         }
         return null;
+    }
+    /**
+     * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns the list for the question. Use this version
+     * for obtaining the whole list of obs saved for the single Question concept.Presently used for dynamic lists.
+    * 
+    * @param question concept associated with the Obs to remove
+    * @return the list of obs associated with it
+    */
+    public List<Obs> removeExistingObs(Concept question) {
+          List<Obs> list = existingObs.get(question);
+          existingObs.remove(question);
+                      return list;
     }
     
 	/**
@@ -758,5 +781,36 @@ public class FormEntryContext {
 	public void setUnmatchedMode(boolean unmatchedMode) {
 		this.unmatchedMode = unmatchedMode;
 	}
+	
+	/**
+     * Notes that we're in a dynamic repeat tag, so that we assign "-template" widget names
+	 * @throws BadFormDesignException 
+     */
+    public void beginDynamicRepeat() throws BadFormDesignException {
+	    if (inDynamicRepeat) {
+	    	throw new BadFormDesignException("Cannot have nested dynamicRepeat tags");
+	    }
+	    inDynamicRepeat = true;
+    }
+    
+    public void endDynamicRepeat() {
+    	if (!inDynamicRepeat) {
+	    	throw new RuntimeException("Trying to close a dynamicRepeat tag, but we're not in one");
+	    }
+	    inDynamicRepeat = false;
+    }
+    public boolean getDynamicRepeat() {  
+	  return inDynamicRepeat;
+    } 
+
+	/**
+	 * Repeated tags will use this integer as a replacement for "template" when fetching submitted data
+	 * 
+     * @param iteration
+     */
+    public void setRepeatIteration(Integer iteration) {
+	    repeatIteration = iteration;
+    }
+
 
 }

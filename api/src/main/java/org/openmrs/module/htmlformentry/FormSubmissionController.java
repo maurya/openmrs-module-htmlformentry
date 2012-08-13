@@ -51,6 +51,9 @@ public class FormSubmissionController {
      * @param the form submission controller action to add
      */
     public void addAction(FormSubmissionControllerAction action) {
+    	if (repeat != null)
+    		repeat.addAction(action); 
+    	else
         actions.add(action);
     }
     

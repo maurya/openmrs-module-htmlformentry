@@ -59,11 +59,13 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
                
         String name = attributes.get("label");
         // find relevant obs group to display for this element
-        Obs thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"));
+        Obs thisGroup = null;
+        if (!session.getContext().getDynamicRepeat())
+			thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"));
         
         boolean digDeeper = true;
         
-        if (thisGroup == null && (session.getContext().getMode() == Mode.EDIT || session.getContext().getMode() == Mode.VIEW)) {
+        if (thisGroup == null && (session.getContext().getMode() == Mode.EDIT || session.getContext().getMode() == Mode.VIEW) && !session.getContext().getDynamicRepeat()) {
         	if (!session.getContext().isUnmatchedMode()) {
             	unmatchedInd = true;
 

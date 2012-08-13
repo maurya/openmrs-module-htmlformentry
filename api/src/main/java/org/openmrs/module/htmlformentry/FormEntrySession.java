@@ -392,6 +392,7 @@ public class FormEntrySession {
         xml = htmlGenerator.applyRoleRestrictions(xml);
         xml = htmlGenerator.applyMacros(xml);
         xml = htmlGenerator.applyTemplates(xml);
+        xml = htmlGenerator.applyDynamicTags(this, xml);
         xml = htmlGenerator.applyTranslations(xml, context);
         xml = htmlGenerator.applyTags(this, xml);
 
