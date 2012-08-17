@@ -195,8 +195,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					// if not 'false' we treat as 'true'
 					existingObs = context.removeExistingObs(concept, true);
 				}
-			}
-			else if ("autocomplete".equals(parameters.get("style")) && "true".equals(parameters.get("selectMulti"))) {
+			} else if ("autocomplete".equals(parameters.get("style")) && "true".equals(parameters.get("selectMulti"))) {
 				existingObsList = context.removeExistingObs(concept);
 			} else {
 				existingObs = context.removeExistingObs(concept, answerConcept);
@@ -207,7 +206,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		
 		errorWidget = new ErrorWidget();
 		context.registerWidget(errorWidget);
-		
+
 		if (parameters.containsKey("labelNameTag")) {
 			if (parameters.get("labelNameTag").equals("default"))
 				if (concepts != null)
@@ -1042,7 +1041,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		String comment = null;
 		if(commentFieldWidget != null)
 			comment = commentFieldWidget.getValue(session.getContext(), submission);
-
+		
 		if (existingObsList != null && session.getContext().getMode() == Mode.EDIT) {
 			int i = Integer.parseInt((String) value);
 			String conceptValue = session.getContext().getFieldName(valueWidget) + "span_";

@@ -609,3 +609,84 @@ function setupDatePickerLocalization(locale) {
 			yearSuffix: ''};
 	}
 }
+
+openmrs = document.openmrs || {};
+openmrs.htmlformentry = openmrs.htmlformentry || {};
+
+// triggered when the add of dynamicRepeat is clicked
+openmrs.htmlformentry.duplicateTemplate = function(v) {
+	var count = parseInt($j(v).parent().children('.counter').val());
+	var q = $j(v).clone();
+	$j(v).children('.dynamicRepeat').remove();
+	$j(v).attr("class", "dynamic-repeat-template");
+	$j(v).children().each(function() {
+		if ($j(this).attr('id')) {
+			var tempid = $j(this).attr('id').split('-template', 2);
+			$j(this).attr('id', tempid[0] + '-' + count + tempid[1]);
+		}
+		if ($j(this).attr('name')) {
+			var tempname = $j(this).attr('name').split('-template', 2);
+			$j(this).attr('name', tempname[0] + '-' + count + tempname[1]);
+		}
+	});
+	$j(q).children().each(function() {
+		if ($j(this).attr('value') && $j(this).attr('type') != 'button') {
+			$j(this).attr('value', "");
+		}
+	});
+	count++;
+	$j(v).parent().children('.counter').val(count + '');
+	$j(v)
+			.append(
+					"<input value='remove' type='button' class='dynamicRemove' onClick='openmrs.htmlformentry.removeFunction($j(this).parent())'>");
+	q.insertBefore(v);
+}
+
+// triggered when remove of dynamicRepeat is clicked
+openmrs.htmlformentry.removeFunction = function(v) {
+	var k = $j(v).parent();
+	var b = 0;
+	$j(v).remove();
+	$j(k).children('.dynamic-repeat-template').each(function(index) {
+		if (index == 0)
+			return true;
+		$j(this).children(":input").each(function(ind) {
+			if ($j(this).attr("id")) {
+				var sample = $j(this).attr("id").split("-", 1);
+				$j(this).attr("id", sample + "-" + index);
+			}
+			b = index;
+		});
+	});
+	$j(k).children('.counter').attr("value", b + 2);
+}
+
+// used for dynamicAutocomplete widget
+openmrs.htmlformentry.refresh = function(v) {
+	var flag = true;
+	var string = ((v).split("span", 1)) + "_hid";
+	var divId = ((v).split("span", 1)) + "_div";
+	var temp = ((v).split("span", 1)) + "span_";
+	$j('#' + divId + ' span').each(
+			function(index) {
+				$j('#' + divId).data("count", index + 1);
+				$j('#' + string).attr('value', $j('#' + divId).data("count"));
+				flag = false;
+				var spanId = this.id;
+				var newSpanId = spanId.split('_', 1) + '_' + index;
+				this.id = newSpanId;
+				$j('#' + spanId + '_hid').attr('id', newSpanId + '_hid');
+				$j('#' + spanId + '_button').removeAttr('onclick', null)
+						.unbind('click').attr('id', newSpanId + '_button')
+						.click(
+								function() {
+									$j('#' + newSpanId).remove();
+									openmrs.htmlformentry.refresh(newSpanId
+											+ "_button");
+								});
+				$j('#' + newSpanId + '_hid').attr('name', newSpanId + '_hid');
+			});
+	if (flag)
+		$j('#' + divId).data("count", 0);
+	$j('#' + string).attr('value', $j('#' + divId).data("count"));
+}

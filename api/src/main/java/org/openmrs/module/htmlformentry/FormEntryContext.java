@@ -103,23 +103,23 @@ public class FormEntryContext {
      * @param widget the widget to register
      * @return the field id used to identify this widget in the HTML Form
      */
-    public String registerWidget(Widget widget) {
-        if (fieldNames.containsKey(widget))
-            throw new IllegalArgumentException("This widget is already registered");
-        int thisVal = 0;
-        synchronized (sequenceNextVal) {
-            thisVal = sequenceNextVal;
-            sequenceNextVal = sequenceNextVal + 1;            
-        }
-        String fieldName = "w" + thisVal;
-        if (inDynamicRepeat) {
-        	fieldName += "-template";
-        }
-        fieldNames.put(widget, fieldName);
-        if (log.isTraceEnabled())
-        	log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
-        return fieldName;
-    }
+	public String registerWidget(Widget widget) {
+		if (fieldNames.containsKey(widget))
+			throw new IllegalArgumentException("This widget is already registered");
+		int thisVal = 0;
+		synchronized (sequenceNextVal) {
+			thisVal = sequenceNextVal;
+			sequenceNextVal = sequenceNextVal + 1;
+		}
+		String fieldName = "w" + thisVal;
+		if (inDynamicRepeat) {
+			fieldName += "-template";
+		}
+		fieldNames.put(widget, fieldName);
+		if (log.isTraceEnabled())
+			log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
+		return fieldName;
+	}
     
     /**
      * Registers an error widget within the Context
@@ -147,18 +147,18 @@ public class FormEntryContext {
      * @return the field id associated with the widget in the HTML Form
      * @throws IllegalArgumentException if the given widget is not registered
      */
-    public String getFieldName(Widget widget) {
-        String fieldName = fieldNames.get(widget);
-        if (fieldName == null)
-            throw new IllegalArgumentException("Widget not registered");
-        else{
-        	if (repeatIteration != null) {
-    		return fieldName.replace("template", repeatIteration.toString());
-    	} else {
-    		return fieldName;
-    	}
-        }
-    }
+	public String getFieldName(Widget widget) {
+		String fieldName = fieldNames.get(widget);
+		if (fieldName == null)
+			throw new IllegalArgumentException("Widget not registered");
+		else {
+			if (repeatIteration != null) {
+				return fieldName.replace("template", repeatIteration.toString());
+			} else {
+				return fieldName;
+			}
+		}
+	}
     
     /**
      * Like {@link #getFieldName(Widget)} but returns null if the widget is not registered (instead
@@ -400,18 +400,20 @@ public class FormEntryContext {
         }
         return null;
     }
-    /**
-     * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns the list for the question. Use this version
-     * for obtaining the whole list of obs saved for the single Question concept.Presently used for dynamic lists.
-    * 
-    * @param question concept associated with the Obs to remove
-    * @return the list of obs associated with it
-    */
-    public List<Obs> removeExistingObs(Concept question) {
-          List<Obs> list = existingObs.get(question);
-          existingObs.remove(question);
-                      return list;
-    }
+    
+	/**
+	 * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns the list for
+	 * the question. Use this version for obtaining the whole list of obs saved for the single
+	 * Question concept.Presently used for dynamic lists.
+	 * 
+	 * @param question concept associated with the Obs to remove
+	 * @return the list of obs associated with it
+	 */
+	public List<Obs> removeExistingObs(Concept question) {
+		List<Obs> list = existingObs.get(question);
+		existingObs.remove(question);
+		return list;
+	}
     
 	/**
 	 * Removes an Order of the relevant Concept from existingOrders, and returns it.
@@ -783,34 +785,36 @@ public class FormEntryContext {
 	}
 	
 	/**
-     * Notes that we're in a dynamic repeat tag, so that we assign "-template" widget names
-	 * @throws BadFormDesignException 
-     */
-    public void beginDynamicRepeat() throws BadFormDesignException {
-	    if (inDynamicRepeat) {
-	    	throw new BadFormDesignException("Cannot have nested dynamicRepeat tags");
-	    }
-	    inDynamicRepeat = true;
-    }
-    
-    public void endDynamicRepeat() {
-    	if (!inDynamicRepeat) {
-	    	throw new RuntimeException("Trying to close a dynamicRepeat tag, but we're not in one");
-	    }
-	    inDynamicRepeat = false;
-    }
-    public boolean getDynamicRepeat() {  
-	  return inDynamicRepeat;
-    } 
-
-	/**
-	 * Repeated tags will use this integer as a replacement for "template" when fetching submitted data
+	 * Notes that we're in a dynamic repeat tag, so that we assign "-template" widget names
 	 * 
-     * @param iteration
-     */
-    public void setRepeatIteration(Integer iteration) {
-	    repeatIteration = iteration;
-    }
-
+	 * @throws BadFormDesignException
+	 */
+	public void beginDynamicRepeat() throws BadFormDesignException {
+		if (inDynamicRepeat) {
+			throw new BadFormDesignException("Cannot have nested dynamicRepeat tags");
+		}
+		inDynamicRepeat = true;
+	}
+	
+	public void endDynamicRepeat() {
+		if (!inDynamicRepeat) {
+			throw new RuntimeException("Trying to close a dynamicRepeat tag, but we're not in one");
+		}
+		inDynamicRepeat = false;
+	}
+	
+	public boolean getDynamicRepeat() {
+		return inDynamicRepeat;
+	}
+	
+	/**
+	 * Repeated tags will use this integer as a replacement for "template" when fetching submitted
+	 * data
+	 * 
+	 * @param iteration
+	 */
+	public void setRepeatIteration(Integer iteration) {
+		repeatIteration = iteration;
+	}
 
 }

@@ -59,29 +59,32 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
                
         String name = attributes.get("label");
         // find relevant obs group to display for this element
-        Obs thisGroup = null;
-        if (!session.getContext().getDynamicRepeat())
+		Obs thisGroup = null;
+		if (!session.getContext().getDynamicRepeat())
 			thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"));
-        
-        boolean digDeeper = true;
-        
-        if (thisGroup == null && (session.getContext().getMode() == Mode.EDIT || session.getContext().getMode() == Mode.VIEW) && !session.getContext().getDynamicRepeat()) {
-        	if (!session.getContext().isUnmatchedMode()) {
-            	unmatchedInd = true;
+		
+		boolean digDeeper = true;
 
-            	ObsGroupEntity obsGroupEntity = new ObsGroupEntity();
-            	obsGroupEntity.setPath(ObsGroupComponent.getObsGroupPath(node));
-            	obsGroupEntity.setQuestionsAndAnswers(ObsGroupComponent.findQuestionsAndAnswersForGroup(attributes.get("groupingConceptId"), node));
-            	obsGroupEntity.setXmlObsGroupConcept(attributes.get("groupingConceptId"));
-            	obsGroupEntity.setGroupingConcept(groupingConcept);
-            	obsGroupEntity.setNode(node);
-            	int unmatchedObsGroupId = session.getContext().addUnmatchedObsGroupEntities(obsGroupEntity);
-                out.print(String.format("<unmatched id=\"%s\" />", unmatchedObsGroupId));        	
-                digDeeper = false;
-        	}
-        } else {
-        	unmatchedInd = false;
-        }
+		if (thisGroup == null
+		        && (session.getContext().getMode() == Mode.EDIT || session.getContext().getMode() == Mode.VIEW)
+		        && !session.getContext().getDynamicRepeat()) {
+			if (!session.getContext().isUnmatchedMode()) {
+				unmatchedInd = true;
+				
+				ObsGroupEntity obsGroupEntity = new ObsGroupEntity();
+				obsGroupEntity.setPath(ObsGroupComponent.getObsGroupPath(node));
+				obsGroupEntity.setQuestionsAndAnswers(ObsGroupComponent.findQuestionsAndAnswersForGroup(
+				    attributes.get("groupingConceptId"), node));
+				obsGroupEntity.setXmlObsGroupConcept(attributes.get("groupingConceptId"));
+				obsGroupEntity.setGroupingConcept(groupingConcept);
+				obsGroupEntity.setNode(node);
+				int unmatchedObsGroupId = session.getContext().addUnmatchedObsGroupEntities(obsGroupEntity);
+				out.print(String.format("<unmatched id=\"%s\" />", unmatchedObsGroupId));
+				digDeeper = false;
+			}
+		} else {
+			unmatchedInd = false;
+		}
         
         // sets up the obs group stack, sets current obs group to this one
         ObsGroup ogSchemaObj = new ObsGroup(groupingConcept, name);
